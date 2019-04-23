@@ -1,0 +1,25 @@
+{
+    "name": "r28/astro-time",
+    "description": "Time package for astronomical calculation with Cake\\Chronos",
+    "type": "library",
+    "require": {
+        "cakephp/chronos": "^1.2",
+        "vlucas/phpdotenv": "^3.3"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "r28",
+            "email": "r28@redmagic.cc"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require-dev": {
+        "phpunit/phpunit": "^7.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "r28\\AstroTime\\": "src/AstroTime/"
+        }
+    }
+}
