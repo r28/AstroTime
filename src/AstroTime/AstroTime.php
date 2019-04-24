@@ -254,7 +254,7 @@ class AstroTime
     public $quarter;
     
 
-    public function __construct($params=null, $tz=null) {
+    public function __construct($params=null, $tz=null, $is_calc_astro=true) {
         $this->timezoneName = (is_null($tz)) ? date_default_timezone_get() : $tz;
         if ($params === 'instance') return;
 
@@ -263,9 +263,9 @@ class AstroTime
             $this->utc = $this->local->copy()->setTimezone('UTC');
             $this->timestamp = $this->local->timestamp;
             $this->setStaticFromLocal();
-            $this->calcAstro();
+            if ($is_calc_astro) $this->calcAstro();
         } catch (Exception $e) {
-            echo $e->getMessage();
+            throw new InvalidArgumentException("Argument is 'DateString': string, 'TimezoneName': string, 'is_calc_astro': boolean");
         }
     }
 
@@ -279,19 +279,21 @@ class AstroTime
      * @param   integer     $mi     Minute
      * @param   integer     $s      Second
      * @param   string      $tz     Timezonename
+     * @param   boolean     $is_calc_astro
+     * @throw   InvalidArgumentException
      * @return  AstriTime
      */
-    public static function create($y=null, $m=null, $d=null, $h=0, $mi=0, $s=0, $tz=null) {
+    public static function create($y=null, $m=null, $d=null, $h=0, $mi=0, $s=0, $tz=null, $is_calc_astro=true) {
         try {
             $time = new self('instance', $tz);
             $time->local = Chronos::create($y, $m, $d, $h, $mi, $s);
             $time->utc = $time->local->copy()->setTimezone('UTC');
             $time->timestamp = $time->local->timestamp;
             $time->setStaticFromLocal();
-            $time->calcAstro();
+            if ($is_calc_astro) $this->calcAstro();
             return $time;
         } catch (Exception $e) {
-            throw new Exception("Argument is 'year', 'month',... : Integer");
+            throw new InvalidArgumentException("Argument is 'year', 'month',... : Integer");
         }
     }
 
@@ -305,9 +307,11 @@ class AstroTime
      * @param   integer     $mi     Minute
      * @param   integer     $s      Second
      * @param   string      $tz     Timezonename
+     * @param   boolean     $is_calc_astro
+     * @throw   InvalidArgumentException
      * @return  AstriTime
      */
-    public static function createFromUtc($y, $m, $d, $h=0, $mi=0, $s=0, $tz=null) {
+    public static function createFromUtc($y, $m, $d, $h=0, $mi=0, $s=0, $tz=null, $is_calc_astro=true) {
         if (is_null($tz)) $tz = date_default_timezone_get();
         try {
             $time = new self('instance', $tz);
@@ -315,10 +319,10 @@ class AstroTime
             $time->local = $time->utc->copy()->setTimezone($tz);
             $time->timestamp = $time->local->timestamp;
             $time->setStaticFromLocal();
-            $time->calcAstro();
+            if ($is_calc_astro) $time->calcAstro();
             return $time;
         } catch (Exception $e) {
-            throw new Exception("Argument is 'year', 'month',... : Integer");
+            throw new InvalidArgumentException("Argument is 'year', 'month',... : Integer");
         }
     }
 
@@ -327,28 +331,39 @@ class AstroTime
      * 
      * @param   integer     $timestamp  Unix Timestamp
      * @param   string      $tz         Timezonename
+     * @param   boolean     $is_calc_astro
+     * @throw   InvalidArgumentException
      * @return  AstroTime
      */
-    public static function createFromTimestamp($timestamp, $tz=null) {
+    public static function createFromTimestamp($timestamp, $tz=null, $is_calc_astro=true) {
         try {
             $time = new self('instance', $tz);
             $time->local = Chronos::createFromTimestamp($timestamp);
             $time->utc = $time->local->copy()->setTimezone('UTC');
             $time->timestamp = $time->local->timestamp;
             $time->setStaticFromLocal();
-            $time->calcAstro();
+            if ($is_calc_astro) $time->calcAstro();
             return $time;
         } catch (Exception $e) {
             throw new InvalidArgumentException("Argument is 'UnixTime': Integer");
         }
     }
 
-    public static function createFromJulian($jd, $tz=null) {
+    /**
+     * Create this instance from Julian day
+     *
+     * @param   float   $jd     Julian day
+     * @param   string  $tz     Timezonename
+     * @param   boolean     $is_calc_astro
+     * @throw   InvalidArgumentException
+     * @return  AstroTime
+     */
+    public static function createFromJulian($jd, $tz=null, $is_calc_astro=true) {
         try {
             $time = new self('instance', $tz);
             // Boundary date between Julian and Gregorian
             $utc = ($jd < self::BOUNDARY_JD) ? static::julian2UtcForJulian($jd) : static::julian2UtcForGregorian($jd);
-            return static::createFromUtc($utc['year'], $utc['month'], $utc['day'], $utc['hour'], $utc['minute'], $utc['second'], $tz);
+            return static::createFromUtc($utc['year'], $utc['month'], $utc['day'], $utc['hour'], $utc['minute'], $utc['second'], $tz, $is_calc_astro);
         } catch (Exception $e) {
             throw new InvalidArgumentException("Argument is 'Julian: Float");
         }
