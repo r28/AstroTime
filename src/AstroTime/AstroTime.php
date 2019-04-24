@@ -236,6 +236,23 @@ class AstroTime
      */
     public $tdb = null;
 
+    /**
+     * 以下 Chronos のプロパティ
+     * @var integer | float | string
+     */
+    public $year;
+    public $month;
+    public $day;
+    public $hour;
+    public $minute;
+    public $second;
+    public $timezone;
+    public $micro;
+    public $dayOfWeek;
+    public $dayOfYear;
+    public $daysInMonth;
+    public $quarter;
+    
 
     public function __construct($params=null, $tz=null) {
         $this->timezoneName = (is_null($tz)) ? date_default_timezone_get() : $tz;
@@ -245,6 +262,7 @@ class AstroTime
             $this->local = new Chronos($params, $tz);
             $this->utc = $this->local->copy()->setTimezone('UTC');
             $this->timestamp = $this->local->timestamp;
+            $this->setStaticFromLocal();
             $this->calcAstro();
         } catch (Exception $e) {
             echo $e->getMessage();
@@ -263,12 +281,13 @@ class AstroTime
      * @param   string      $tz     Timezonename
      * @return  AstriTime
      */
-    public static function create($y, $m, $d, $h=0, $mi=0, $s=0, $tz=null) {
+    public static function create($y=null, $m=null, $d=null, $h=0, $mi=0, $s=0, $tz=null) {
         try {
             $time = new self('instance', $tz);
             $time->local = Chronos::create($y, $m, $d, $h, $mi, $s);
             $time->utc = $time->local->copy()->setTimezone('UTC');
             $time->timestamp = $time->local->timestamp;
+            $time->setStaticFromLocal();
             $time->calcAstro();
             return $time;
         } catch (Exception $e) {
@@ -295,6 +314,7 @@ class AstroTime
             $time->utc = Chronos::create($y, $m, $d, $h, $mi, $s, 'UTC');
             $time->local = $time->utc->copy()->setTimezone($tz);
             $time->timestamp = $time->local->timestamp;
+            $time->setStaticFromLocal();
             $time->calcAstro();
             return $time;
         } catch (Exception $e) {
@@ -315,6 +335,7 @@ class AstroTime
             $time->local = Chronos::createFromTimestamp($timestamp);
             $time->utc = $time->local->copy()->setTimezone('UTC');
             $time->timestamp = $time->local->timestamp;
+            $time->setStaticFromLocal();
             $time->calcAstro();
             return $time;
         } catch (Exception $e) {
@@ -331,6 +352,22 @@ class AstroTime
         } catch (Exception $e) {
             throw new InvalidArgumentException("Argument is 'Julian: Float");
         }
+    }
+
+    private function setStaticFromLocal() {
+        $lc = $this->local;
+        $this->year     = $lc->year;
+        $this->month    = $lc->month;
+        $this->day      = $lc->day;
+        $this->hour     = $lc->hour;
+        $this->minute   = $lc->minute;
+        $this->second   = $lc->second;
+        $this->timezone = $lc->timezone;
+        $this->micro    = $lc->micro;
+        $this->dayOfWeek    = $lc->dayOfWeek;
+        $this->dayOfYear    = $lc->dayOfYear;
+        $this->daysInMonth  = $lc->daysInMonth;
+        $this->quarter  = $lc->quarter;
     }
 
     public function calcAstro() {
