@@ -252,7 +252,7 @@ class AstroTime
     public $dayOfYear;
     public $daysInMonth;
     public $quarter;
-    
+
 
     public function __construct($params=null, $tz=null, $is_calc_astro=true) {
         $this->timezoneName = (is_null($tz)) ? date_default_timezone_get() : $tz;

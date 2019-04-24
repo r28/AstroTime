@@ -3,8 +3,7 @@
     "description": "Time package for astronomical calculation with Cake\\Chronos",
     "type": "library",
     "require": {
-        "cakephp/chronos": "^1.2",
-        "vlucas/phpdotenv": "^3.3"
+        "cakephp/chronos": "^1.2"
     },
     "license": "MIT",
     "authors": [
