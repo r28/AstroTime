@@ -1,4 +1,6 @@
 # AstroTime
+[![Build Status](https://travis-ci.org/r28/AstroTime.svg?branch=master)](https://travis-ci.org/r28/AstroTime)
+
 Datetime library for astronomical calculate with Cake\Chronos
 
 # Requirements
