@@ -219,13 +219,13 @@ class AstroTime
     public $leaps = [];
 
     /**
-     * TCG (地心座標時)
+     * TCG (Temps-coordonnée géocentrique) (地心座標時)
      * @var float
      */
     public $tcg = null;
 
     /**
-     * TCB (太陽系座標時)
+     * TCB (Temps-coordonnée barycentrique) (太陽系座標時)
      * @var float
      */
     public $tcb = null;
@@ -290,7 +290,7 @@ class AstroTime
             $time->utc = $time->local->copy()->setTimezone('UTC');
             $time->timestamp = $time->local->timestamp;
             $time->setStaticFromLocal();
-            if ($is_calc_astro) $this->calcAstro();
+            if ($is_calc_astro) $time->calcAstro();
             return $time;
         } catch (Exception $e) {
             throw new InvalidArgumentException("Argument is 'year', 'month',... : Integer");
