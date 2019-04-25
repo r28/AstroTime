@@ -20,6 +20,7 @@ class AstroTimeJulianTest extends  PHPUnit\Framework\TestCase
 
     public function setUp()
     {
+        date_default_timezone_set(self::TIMEZONE);
         $this->at = new AstroTime(self::DATE_STRING, self::TIMEZONE);
     }
 
@@ -42,7 +43,6 @@ class AstroTimeJulianTest extends  PHPUnit\Framework\TestCase
      */
     public function test_time2Julian() {
         $utime = strtotime(self::DATE_STRING);
-        echo "test_time2Julian :: ";
         $this->assertEquals(self::JD, AstroTime::time2Julian($utime, self::TIMEZONE));
     }
 

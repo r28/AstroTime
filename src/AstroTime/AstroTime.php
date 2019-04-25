@@ -777,8 +777,7 @@ class AstroTime
 
         $utc_tai = static::DEFAULT_UTC_TAI;
         foreach($leaps as $_dt=>$_val) {
-            $_time = strtotime($_dt);
-            if ($_time <= $utc->timestamp) {
+            if ($_dt <= $utc->timestamp) {
                 $utc_tai = $_val;
                 break;
             }

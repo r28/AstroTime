@@ -15,6 +15,7 @@ class AstroTimeTest extends  PHPUnit\Framework\TestCase
 
     public function setUp()
     {
+        date_default_timezone_set(self::TIMEZONE);
         $this->at = new AstroTime(self::DATE_STRING, self::TIMEZONE);
     }
 
