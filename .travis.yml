@@ -5,6 +5,7 @@ php:
 before_script:
     - composer self-update
     - composer install
+    - date
 
 script:
     - vendor/bin/phpunit
