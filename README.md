@@ -2,7 +2,7 @@
 Datetime library for astronomical calculate with Cake\Chronos
 
 # Requirements
-- PHP >= 7.0
+- PHP >= 7.1
 - composer
 - cakephp/chronos
 
