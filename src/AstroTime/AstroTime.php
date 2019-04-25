@@ -621,7 +621,7 @@ class AstroTime
      * @return  float
      */
     public static function dateString2Julian($string, $tz=null) {
-        $time = new self($string);
+        $time = new self($string, $tz);
         return $time->jd;
     }
 

@@ -44,7 +44,7 @@ class AstroTimeTest extends  PHPUnit\Framework\TestCase
      * UTC => ユリウス日
      */
     public function test_utc2Julian() {
-        $time = new Chronos(self::DATE_STRING);
+        $time = new Chronos(self::DATE_STRING, self::TIMEZONE);
         $utc = $time->setTimezone('UTC');
         $this->assertEquals(self::JD, AstroTime::utc2Julian($utc, self::TIMEZONE));
     }
@@ -84,8 +84,8 @@ class AstroTimeTest extends  PHPUnit\Framework\TestCase
      * deltaT
      */
     public function test_deltaT() {
-        $at = new AstroTime(self::DATE_STRING);
-        $time = new Chronos(self::DATE_STRING);
+        $at = new AstroTime(self::DATE_STRING, self::TIMEZONE);
+        $time = new Chronos(self::DATE_STRING, self::TIMEZONE);
         $utc = $time->setTimezone('UTC');
         $leaps = $at->leaps;
         $this->assertEquals(self::DELTA_T, AstroTime::utc2DeltaT($utc, $leaps));
