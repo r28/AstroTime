@@ -13,13 +13,14 @@ class AstroTimeJulianTest extends  PHPUnit\Framework\TestCase
     //const JULIAN_CENTURY = -4.1718240931;
     const DATE_STRING = "1582-10-01 00:00:00";
     const RETURN_DATE_STRING = "1582-10-01 00:00:00";
+    const TIMEZONE = 'Asia/Tokyo';
     const JD  = 2299156.125;
     const MJD = -100844.375;
     const JULIAN_CENTURY = -4.1721800137;
 
     public function setUp()
     {
-        $this->at = new AstroTime(self::DATE_STRING);
+        $this->at = new AstroTime(self::DATE_STRING, self::TIMEZONE);
     }
 
     /**
@@ -33,7 +34,7 @@ class AstroTimeJulianTest extends  PHPUnit\Framework\TestCase
      * 日付文字列 => ユリウス日
      */
     public function test_date2Julian() {
-        $this->assertEquals(self::JD, AstroTime::dateString2Julian(self::DATE_STRING));
+        $this->assertEquals(self::JD, AstroTime::dateString2Julian(self::DATE_STRING, self::TIMEZONE));
     }
 
     /**
@@ -42,7 +43,7 @@ class AstroTimeJulianTest extends  PHPUnit\Framework\TestCase
     public function test_time2Julian() {
         $utime = strtotime(self::DATE_STRING);
         echo "test_time2Julian :: ";
-        $this->assertEquals(self::JD, AstroTime::time2Julian($utime));
+        $this->assertEquals(self::JD, AstroTime::time2Julian($utime, self::TIMEZONE));
     }
 
     /**
@@ -51,7 +52,7 @@ class AstroTimeJulianTest extends  PHPUnit\Framework\TestCase
     public function test_utc2Julian() {
         $time = new Chronos(self::DATE_STRING);
         $utc = $time->setTimezone('UTC');
-        $this->assertEquals(self::JD, AstroTime::utc2Julian($utc));
+        $this->assertEquals(self::JD, AstroTime::utc2Julian($utc, self::TIMEZONE));
     }
 
     /**
@@ -82,7 +83,7 @@ class AstroTimeJulianTest extends  PHPUnit\Framework\TestCase
      * ユリウス日 => 日付文字列
      */
     public function test_julian2DateString() {
-        $this->assertEquals(self::RETURN_DATE_STRING, AstroTime::julian2Datestring(self::JD, 'Y-m-d H:i:s', 'Asia/Tokyo'));
+        $this->assertEquals(self::RETURN_DATE_STRING, AstroTime::julian2Datestring(self::JD, 'Y-m-d H:i:s', self::TIMEZONE));
     }
 
 }

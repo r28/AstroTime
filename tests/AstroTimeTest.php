@@ -7,6 +7,7 @@ use r28\AstroTime\AstroTime;
 class AstroTimeTest extends  PHPUnit\Framework\TestCase
 {
     const DATE_STRING = "2019-01-01 00:00:00";
+    const TIMEZONE = 'Asia/Tokyo';
     const JD = 2458484.125;
     const MJD = 58483.625;
     const JULIAN_CENTURY =  0.1899828884;
@@ -14,7 +15,7 @@ class AstroTimeTest extends  PHPUnit\Framework\TestCase
 
     public function setUp()
     {
-        $this->at = new AstroTime(self::DATE_STRING);
+        $this->at = new AstroTime(self::DATE_STRING, self::TIMEZONE);
     }
 
     /**
@@ -28,7 +29,7 @@ class AstroTimeTest extends  PHPUnit\Framework\TestCase
      * 日付文字列 => ユリウス日
      */
     public function test_date2Julian() {
-        $this->assertEquals(self::JD, AstroTime::dateString2Julian(self::DATE_STRING));
+        $this->assertEquals(self::JD, AstroTime::dateString2Julian(self::DATE_STRING, self::TIMEZONE));
     }
 
     /**
@@ -36,7 +37,7 @@ class AstroTimeTest extends  PHPUnit\Framework\TestCase
      */
     public function test_time2Julian() {
         $utime = strtotime(self::DATE_STRING);
-        $this->assertEquals(self::JD, AstroTime::time2Julian($utime));
+        $this->assertEquals(self::JD, AstroTime::time2Julian($utime, self::TIMEZONE));
     }
 
     /**
@@ -45,7 +46,7 @@ class AstroTimeTest extends  PHPUnit\Framework\TestCase
     public function test_utc2Julian() {
         $time = new Chronos(self::DATE_STRING);
         $utc = $time->setTimezone('UTC');
-        $this->assertEquals(self::JD, AstroTime::utc2Julian($utc));
+        $this->assertEquals(self::JD, AstroTime::utc2Julian($utc, self::TIMEZONE));
     }
 
     /**
@@ -76,7 +77,7 @@ class AstroTimeTest extends  PHPUnit\Framework\TestCase
      * ユリウス日 => 日付文字列
      */
     public function test_julian2datestring() {
-        $this->assertEquals(self::DATE_STRING, astrotime::julian2Datestring(self::JD, 'Y-m-d H:i:s'));
+        $this->assertEquals(self::DATE_STRING, astrotime::julian2Datestring(self::JD, 'Y-m-d H:i:s', self::TIMEZONE));
     }
 
     /**
