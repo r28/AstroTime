@@ -29,7 +29,7 @@ Expand 'Cake\Chronos', calculate the numerical value necessary to astronomy calc
 # Install
 Use composer:
 ```bash
-$ composer require r28/AstroTime
+$ composer require r28/astro-time
 ```
 
 # Usage
