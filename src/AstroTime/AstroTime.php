@@ -15,6 +15,10 @@
  */
 
 namespace r28\AstroTime;
+
+require_once __DIR__.'/Math.php';
+use r28\AstroTime\Math;
+
 use Cake\Chronos\Chronos;
 use \RuntimeException;
 use \InvalidArgumentException;
@@ -635,15 +639,15 @@ class AstroTime
         $y = $utc->year;
         $m = $utc->month;
         $d = $utc->day;
-        $k = self::gauss((14 - $m) / 12);
+        $k = Math\gauss((14 - $m) / 12);
 
         $h = $utc->hour;
         $mi = $utc->minute;
         $s = $utc->second;
 
-        $jd = self::gauss((-$k + $y + 4800) * 1461 / 4)
-            + self::gauss(($k * 12 + $m - 2) * 367 / 12)
-            - self::gauss(self::gauss( (-$k + $y + 4900) / 100 ) * 3 / 4 )
+        $jd = Math\gauss((-$k + $y + 4800) * 1461 / 4)
+            + Math\gauss(($k * 12 + $m - 2) * 367 / 12)
+            - Math\gauss(Math\gauss( (-$k + $y + 4900) / 100 ) * 3 / 4 )
             + $d - 32075.5
             + $h / 24
             + $mi / self::MINUTES_OF_DAY
@@ -682,8 +686,8 @@ class AstroTime
             $m += 12;
         }
 
-        $jd = static::gauss($y * self::DAY_OF_YEAR_JULIAN)
-            + static::gauss(30.59 * ($m - 2))
+        $jd = Math\gauss($y * self::DAY_OF_YEAR_JULIAN)
+            + Math\gauss(30.59 * ($m - 2))
             + $d - 678914 + self::JD_MJD
             + $h / 24
             + $mi / self::MINUTES_OF_DAY
@@ -704,13 +708,13 @@ class AstroTime
         $_jds = $jd - $_jd;
 
         $L = $_jd + 68569;
-        $N = self::gauss(4 * $L / 146097);
-        $L = $L - self::gauss((146097 * $N + 3) / 4 );
-        $I = self::gauss(4000 * ($L + 1) / 1461001);
-        $L = $L - self::gauss(1461 * $I / 4) + 31;
-        $J = self::gauss(80 * $L / 2447);
-        $D = $L - self::gauss(2447 * $J / 80);
-        $L = self::gauss($J / 11);
+        $N = Math\gauss(4 * $L / 146097);
+        $L = $L - Math\gauss((146097 * $N + 3) / 4 );
+        $I = Math\gauss(4000 * ($L + 1) / 1461001);
+        $L = $L - Math\gauss(1461 * $I / 4) + 31;
+        $J = Math\gauss(80 * $L / 2447);
+        $D = $L - Math\gauss(2447 * $J / 80);
+        $L = Math\gauss($J / 11);
         $M = $J + 2 - 12 * $L;
         $Y = 100 * ($N - 49) + $I + $L;
 
@@ -736,11 +740,11 @@ class AstroTime
         $mjd = $jd - static::JD_MJD;
         $n = $mjd + 678883;
         $a = ( 4 * $n ) + 3;
-        $b = 5 * static::gauss( ($a % 1461) / 4 ) + 2;
+        $b = 5 * Math\gauss( ($a % 1461) / 4 ) + 2;
 
-        $Y = static::gauss( $a / 1461 );
-        $M = static::gauss( $b / 153 ) + 3;
-        $D = static::gauss( ($b % 153) / 5) + 1;
+        $Y = Math\gauss( $a / 1461 );
+        $M = Math\gauss( $b / 153 ) + 3;
+        $D = Math\gauss( ($b % 153) / 5) + 1;
 
         if ($M > 12) {
             $Y++;
@@ -987,24 +991,6 @@ class AstroTime
         return static::utc2Julian($time, $tz);
     }
 
-
-
-    /**
-     * Gauss Function
-     * 
-     * @param   float   $value
-     * @return  float
-     */
-    public static function gauss($value) {
-        if (! is_numeric($value)) {
-            throw new \Exception("'gauss' function need numeric");
-        }
-        if ($value >= 0) {
-            return floor($value);
-        } else {
-            return ceil($value);
-        }
-    }
 
     
     /**
