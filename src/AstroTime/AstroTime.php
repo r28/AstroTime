@@ -115,6 +115,11 @@ class AstroTime
      */
     const DEFAULT_UTC_TAI = -37;
 
+    /**
+     * Directory path for INI files
+     * @var string
+     */
+    static $ini_dir = __DIR__.'/settings/';
 
     /**
      * Timezone Name
@@ -145,6 +150,12 @@ class AstroTime
      * @var string
      */
     static $leap_ini = 'leap.ini';
+
+    /**
+     * Path of setting file for monthly DeltaT settings
+     * @var string
+     */
+    static $monthly_delta_t_ini = 'monthly_deltat.ini';
 
     /**
      * Calendar type (暦種別)
@@ -208,6 +219,12 @@ class AstroTime
      * @var float
      */
     public $utc_tai = null;
+
+    /**
+     * delta(T) : Known DeltaT data tables
+     * @var array
+     */
+    public $delta_ts = [];
 
     /**
      * delta(T) = TT - UT1
@@ -391,6 +408,7 @@ class AstroTime
 
     public function calcAstro() {
         $this->setLeaps()
+             ->setDeltaTDatas()
              ->setCalendarType()
              ->setJulians()
              ->setUt1()
@@ -399,7 +417,8 @@ class AstroTime
              ->setTt()
              ->setTcg()
              ->setTcb()
-             ->setTdb();
+             ->setTdb()
+             ->setJulianCentury();
     }
 
     /**
@@ -414,17 +433,33 @@ class AstroTime
 
     /**
      * Parsing setting file for leap seconds (うるう秒の設定ファイルを読込)
+     *  - setting $this->leaps;
      *
      * @throws  RuntimeException
-     * @return  Array
+     * @return  AstroTime
      */
     public function setLeaps() {
-        $leap_ini_dir = dirname(__FILE__).'/settings/';
-        $leap_ini_file = $leap_ini_dir.static::$leap_ini;
+        $leap_ini_file = static::$ini_dir.static::$leap_ini;
         if (! is_file($leap_ini_file)) {
             throw new RuntimeException("Leap setting file not found: '".$leap_ini_file."'");
         }
-        $this->leaps = parse_ini_file($leap_ini_dir.static::$leap_ini);
+        $this->leaps = parse_ini_file($leap_ini_file);
+        return $this;
+    }
+
+    /**
+     * Parsing setting file for monthly DeltaT datas
+     *  - setting $this->delta_ts;
+     * 
+     * @throws RuntimeException
+     * @return AstroTime;
+     */
+    public function setDeltaTDatas() {
+        $monthly_file = static::$ini_dir.static::$monthly_delta_t_ini;
+        if (! is_file($monthly_file)) {
+            throw new RuntimeException("Monthly DeltaT datas file not found: '".$monthly_file."'");
+        }
+        $this->delta_ts = parse_ini_file($monthly_file);
         return $this;
     }
 
@@ -453,7 +488,17 @@ class AstroTime
     public function setJulians() {
         $this->jd  = static::utc2Julian($this->utc, $this->timezoneName);
         $this->mjd = static::julian2Mjd($this->jd);
-        $this->jc  = static::julianCentury($this->jd);
+        return $this;
+    }
+
+    /**
+     * Set julian century
+     * 
+     * @param   boolean     $use_tt     Use time as TT (default: use JD)
+     */
+    public function setJulianCentury($use_tt=false) {
+        $t = ($use_tt) ? static::time2Julian($this->tt) : $this->jd;
+        $this->jc  = static::julianCentury($t);
         return $this;
     }
 
@@ -491,7 +536,8 @@ class AstroTime
     public function setDeltaT() {
         $utc = $this->utc;
         $leaps = $this->leaps;
-        $this->delta_t = static::utc2DeltaT($utc, $leaps);
+        $delta_ts = $this->delta_ts;
+        $this->delta_t = static::utc2DeltaT($utc, $delta_ts);
         return $this;
     }
 
@@ -803,16 +849,17 @@ class AstroTime
     /**
      * delta(T) = TT - UT1
      *  - After 1972-01-01, Before Processing for leap second insertion (+α):
-     *      delta(T) = 32.184 - (UTC - TAI)
-     *      UTC - TAI : http://jjy.nict.go.jp/QandA/data/leapsec.html
+     *      //delta(T) = 32.184 - (UTC - TAI)
+     *      //UTC - TAI : http://jjy.nict.go.jp/QandA/data/leapsec.html
+     *      DeltaT => Reading: settings/monthly_deltat.ini
      *  - Other : Rough equation by NASA
      *      [NASA - Polynomial Expressions for Delta T] http://eclipse.gsfc.nasa.gov/SEhelp/deltatpoly2004.html
      *
      * @param   Chronos     $utc    UTC
-     * @param   array       $leaps  (UTC - TAI)
+     * @param   array       $delta_ts   DeltaT setting data array
      * @return  float
      */
-    public static function utc2DeltaT($utc, $leaps) {
+    public static function utc2DeltaT($utc, $delta_ts) {
         $date = $utc->format('Y-m-d');
         $year = $utc->year;
         $dt = 0;
@@ -899,16 +946,19 @@ class AstroTime
             $dt -= ($t ** 2) / 233.0;
             $dt += ($t ** 3) / 2547.0;
 
-        } elseif ($date < '1972-01-01') {
+        } elseif ($date < '1972-02-01') {
             $t = $year - 1975;
             $dt  = 45.45;
             $dt += 1.067 * $t;
             $dt -= ($t ** 2) / 260.0;
             $dt -= ($t ** 3) / 718.0;
 
-        } elseif ($date < max(array_keys($leaps))) {
-            $utc_tai = self::utc2UtcTai($utc, $leaps);
-            $dt = self::TT_TAI - $utc_tai;
+        } elseif ($utc->timestamp <= max(array_keys($delta_ts))) {
+            arsort($delta_ts);
+            foreach($delta_ts as $_t=>$delta_t) {
+                $dt = $delta_t;
+                if ($_t <= $utc->timestamp) break;
+            }
 
         } elseif ($year < 2050) {
             $t = $year - 2000;

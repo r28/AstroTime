@@ -11,7 +11,7 @@ class AstroTimeTest extends  PHPUnit\Framework\TestCase
     const JD = 2458484.125;
     const MJD = 58483.625;
     const JULIAN_CENTURY =  0.1899828884;
-    const DELTA_T = 68.184;
+    const DELTA_T = 69.1964;
 
     public function setUp()
     {
@@ -88,8 +88,8 @@ class AstroTimeTest extends  PHPUnit\Framework\TestCase
         $at = new AstroTime(self::DATE_STRING, self::TIMEZONE);
         $time = new Chronos(self::DATE_STRING, self::TIMEZONE);
         $utc = $time->setTimezone('UTC');
-        $leaps = $at->leaps;
-        $this->assertEquals(self::DELTA_T, AstroTime::utc2DeltaT($utc, $leaps));
+        $delta_ts = $at->delta_ts;
+        $this->assertEquals(self::DELTA_T, AstroTime::utc2DeltaT($utc, $delta_ts));
     }
 
 }
