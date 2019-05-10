@@ -373,17 +373,20 @@ class AstroTime
     /**
      * Create this instance from Julian day
      *
-     * @param   float   $jd     Julian day
-     * @param   string  $tz     Timezonename
+     * @param   float       $jd     Julian day
+     * @param   string      $tz     Timezonename
      * @param   boolean     $is_calc_astro
+     * @param   boolean     $use_gregorian_only     If date(jd) is before BOUNDARY_JD, meen JulianCalendar, however, use GregorianCalendar only
      * @throw   InvalidArgumentException
      * @return  AstroTime
      */
-    public static function createFromJulian($jd, $tz=null, $is_calc_astro=true) {
+    public static function createFromJulian($jd, $tz=null, $is_calc_astro=true, $use_gregorian_only=false) {
         try {
             $time = new self('instance', $tz);
             // Boundary date between Julian and Gregorian
-            $utc = ($jd < self::BOUNDARY_JD) ? static::julian2UtcForJulian($jd) : static::julian2UtcForGregorian($jd);
+            $utc = ($jd < self::BOUNDARY_JD && $use_gregorian_only !== true) 
+                ? static::julian2UtcForJulian($jd)
+                : static::julian2UtcForGregorian($jd);
             return static::createFromUtc($utc['year'], $utc['month'], $utc['day'], $utc['hour'], $utc['minute'], $utc['second'], $tz, $is_calc_astro);
         } catch (Exception $e) {
             throw new InvalidArgumentException("Argument is 'Julian: Float");
