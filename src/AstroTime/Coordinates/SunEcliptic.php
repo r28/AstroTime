@@ -59,6 +59,8 @@ class SunEcliptic
      * @return  float       degree
      */
     public function getLongitude(AstroTime $time) {
+        // Time is Julian Century of TT
+        $time = $time->setJulianCentury(true);
         $t = $time->jc;
         $lam = $this->calcLongitudeParams($t);
         $this->lambda = $lam;
