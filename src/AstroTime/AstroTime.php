@@ -170,6 +170,12 @@ class AstroTime
     public $jd = null;
 
     /**
+     * Julian Day for Gregorian (グレゴリオ暦の日付でのユリウス日)
+     * @var float
+     */
+    public $jd_gregorian = null;
+
+    /**
      * Modified Julian Day (修正ユリウス日)
      * @var float
      */
@@ -469,7 +475,7 @@ class AstroTime
     /**
      * Set calendar type
      * 
-     * @param   string  $tz     Timezone Name : ex) 'Asia/Tokyo'
+     * @param   string  $tz     Timezone Name : ex.'Asia/Tokyo'
      * @return  AstroTime
      */
     public function setCalendarType($tz=null) {
@@ -491,6 +497,14 @@ class AstroTime
     public function setJulians() {
         $this->jd  = static::utc2Julian($this->utc, $this->timezoneName);
         $this->mjd = static::julian2Mjd($this->jd);
+        if ($this->calendar_type === static::CALENDAR_TYPE_JULIAN) {
+            $_time = AstroTime::julian2UtcForGregorian($jd);
+            $dt = "{$_time['year']}-{$_time['month']}-{$_time['day']}";
+            $time = new AstroTime($dt);
+            $this->jd_gregorian = $time->jd;
+        } else {
+            $this->jd_gregorian = $this->jd;
+        }
         return $this;
     }
 
@@ -500,7 +514,7 @@ class AstroTime
      * @param   boolean     $use_tt     Use time as TT (default: use JD)
      */
     public function setJulianCentury($use_tt=false) {
-        $t = ($use_tt) ? static::time2Julian($this->tt) : $this->jd;
+        $t = ($use_tt) ? $this->tt : $this->jd;
         $this->jc  = static::julianCentury($t);
         return $this;
     }
@@ -513,8 +527,7 @@ class AstroTime
     public function setUt1() {
         $utc = $this->utc;
         $delta_ut1 = $this->delta_ut1;
-        $ut1 = static::utc2Ut1($utc, $delta_ut1);
-        $this->ut1 = $ut1->timestamp;
+        $this->ut1 = static::utc2Ut1($utc, $delta_ut1);
         return $this;
     }
 
@@ -815,7 +828,9 @@ class AstroTime
      * @return  Chronos
      */
     public static function utc2Ut1($utc, $delta_ut1=0) {
-        return $utc->addSecond( $delta_ut1 );
+        $ut1 = $utc->addSecond( $delta_ut1 );
+        $ut1->jd = self::utc2Julian($ut1);
+        return $ut1;
     }
 
     /**
@@ -988,12 +1003,13 @@ class AstroTime
      * TT (Terrestrial Time: 地球時)
      *  TT = TAI + TT_TAI = UT1 + deltaT
      * 
-     * @param   float       $ut1        UT1
+     * @param   Chronos     $ut1        UT1
      * @param   float       $delta_t    delta(T)
-     * @return  float
+     * @return  float       Julian Day
      */
     public static function ut2Tt($ut1, $delta_t) {
-        return $ut1 + $delta_t;
+        $_ut1 = $ut1->jd;
+        return $_ut1 + $delta_t / static::SECONDS_OF_DAY;
     }
 
     /**
@@ -1163,7 +1179,7 @@ class AstroTime
      * @return
      */
     public static function getConstant($name) {
-        $const = constant('Cake\Chronos\Chronos::'.$name);
+        $const = constant( 'Cake\Chronos\Chronos::'.$name );
         if ($const) return $const;
         return null;
     }
