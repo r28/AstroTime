@@ -498,7 +498,7 @@ class AstroTime
         $this->jd  = static::utc2Julian($this->utc, $this->timezoneName);
         $this->mjd = static::julian2Mjd($this->jd);
         if ($this->calendar_type === static::CALENDAR_TYPE_JULIAN) {
-            $_time = AstroTime::julian2UtcForGregorian($jd);
+            $_time = AstroTime::julian2UtcForGregorian($this->jd);
             $dt = "{$_time['year']}-{$_time['month']}-{$_time['day']}";
             $time = new AstroTime($dt);
             $this->jd_gregorian = $time->jd;
