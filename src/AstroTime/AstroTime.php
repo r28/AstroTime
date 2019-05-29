@@ -427,7 +427,8 @@ class AstroTime
              ->setTcg()
              ->setTcb()
              ->setTdb()
-             ->setJulianCentury();
+             ->setJulianCentury()
+        ;
     }
 
     /**
@@ -500,8 +501,9 @@ class AstroTime
         if ($this->calendar_type === static::CALENDAR_TYPE_JULIAN) {
             $_time = AstroTime::julian2UtcForGregorian($this->jd);
             $dt = "{$_time['year']}-{$_time['month']}-{$_time['day']}";
-            $time = new AstroTime($dt);
-            $this->jd_gregorian = $time->jd;
+            $utc = new Chronos($dt, 'UTC');
+            $jd = AstroTime::utc2JulianForGregorian($utc);
+            $this->jd_gregorian = $jd;
         } else {
             $this->jd_gregorian = $this->jd;
         }
