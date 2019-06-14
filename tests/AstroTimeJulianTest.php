@@ -15,6 +15,7 @@ class AstroTimeJulianTest extends  PHPUnit\Framework\TestCase
     const RETURN_DATE_STRING = "1582-10-01 00:00:00";
     const TIMEZONE = 'Asia/Tokyo';
     const JD  = 2299156.125;
+    const JD_GREGORIAN = 2299146.125;
     const MJD = -100844.375;
     const JULIAN_CENTURY = -4.1721800137;
 
@@ -84,6 +85,11 @@ class AstroTimeJulianTest extends  PHPUnit\Framework\TestCase
      */
     public function test_julian2DateString() {
         $this->assertEquals(self::RETURN_DATE_STRING, AstroTime::julian2Datestring(self::JD, 'Y-m-d H:i:s', self::TIMEZONE));
+    }
+
+    public function test_jd_gregorian() {
+        $jd_gregorian = $this->at->jd_gregorian;
+        $this->assertEquals(self::JD_GREGORIAN, $jd_gregorian);
     }
 
 }
