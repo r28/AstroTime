@@ -499,7 +499,10 @@ class AstroTime
         $this->jd  = static::utc2Julian($this->utc, $this->timezoneName);
         $this->mjd = static::julian2Mjd($this->jd);
         if ($this->calendar_type === static::CALENDAR_TYPE_JULIAN) {
-            $jd = AstroTime::utc2JulianForGregorian($this->utc);
+            $_time = AstroTime::julian2UtcForGregorian($this->jd);
+            $dt = "{$_time['year']}-{$_time['month']}-{$_time['day']}";
+            $utc = new Chronos($dt, 'UTC');
+            $jd = AstroTime::utc2JulianForGregorian($utc);
             $this->jd_gregorian = $jd;
         } else {
             $this->jd_gregorian = $this->jd;
@@ -794,11 +797,11 @@ class AstroTime
      * @return  array   [ 'year', 'month', 'day', 'hour', 'minute', 'second' ]
      */
     public static function julian2UtcForJulian($jd) {
+        $mjd = $jd - static::JD_MJD;
         $jd -= 0.5;
         $z = floor($jd);
         $tm = $jd - $z;
 
-        $mjd = $jd - static::JD_MJD;
         $n = $mjd + 678883;
         $a = ( 4 * $n ) + 3;
         $b = 5 * Math\gauss( ($a % 1461) / 4 ) + 2;
